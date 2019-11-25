@@ -324,12 +324,31 @@ class Manager
             "[\'\"]".// Closing quote
             "[\),]"  // Close parentheses or new parameter
         ;
+        $vuePattern =
+            '(\{\{|[\'\"])'.// Match opening braces or quotes
+            '\s*'.// Match spaces
+            "[\'\"]".// Match " or '
+            '('.// Start a new group to match:
+            '[a-zA-Z0-9\/_-]+'.// Must start with group
+            "([.][^\}\'\"]+)+".// Be followed by one or more items/keys
+            ')'.// Close group
+            "[\'\"]".// Closing quote
+            '\s*'.// Match spaces
+            '\|'. // Match Or Pipe
+            '\s*'.// Match spaces
+            'lang'.// Match lang
+            '\s*'.// Match spaces
+            '(\}\}|[\'\"])'// Match closing braces or quotes
+        ;
 
         $allMatches = [];
 
         /** @var \Symfony\Component\Finder\SplFileInfo $file */
         foreach ($this->disk->allFiles($this->syncPaths) as $file) {
             if (preg_match_all("/$pattern/siU", $file->getContents(), $matches)) {
+                $allMatches[$file->getRelativePathname()] = $matches[2];
+            }
+            if (preg_match_all("/$vuePattern/siU", $file->getContents(), $matches)) {
                 $allMatches[$file->getRelativePathname()] = $matches[2];
             }
         }
