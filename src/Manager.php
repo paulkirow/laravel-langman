@@ -71,7 +71,7 @@ class Manager
             }
         })->map(function ($files) {
             return $files->keyBy(function ($file) {
-                return basename($file->getPath());
+                return explode('/',str_replace($this->path, '', $file->getPath()))[1];
             })->map(function ($file) {
                 return $file->getRealPath();
             });
